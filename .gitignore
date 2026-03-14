@@ -1,3 +1,6 @@
+# cache used in this project
+.cfgcache
+
 /bin/
 # result of `nimble develop`
 /nimble.paths
