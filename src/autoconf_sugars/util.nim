@@ -1,12 +1,12 @@
 
-
+when defined(nimPreviewSlimSystem): import std/syncio
 import std/os
 from std/strutils import parseInt, strip, multiReplace, replace
 import std/macros
 
 const weirdTarget = defined(js) or defined(nimscript)
 const pylibDebug = defined(pylibDebugPyConfig)
-const cacheDir = currentSourcePath()/../".cfgcache"
+const cacheDir = currentSourcePath()/../".cfgcache"/(hostOS&'-'&hostCPU)
 when not weirdTarget:
   static:
     createDir cacheDir # noop if cacheDir dirExists
@@ -25,7 +25,12 @@ template decl_ac_implAux(handle; subcmd; variable; defval; doWithExecRes; code):
     else:
       const
         scode = astToStr code
-        res = gorgeEx( nimExeQuotedPath & ' ' & subcmd & " --hints:"&(when pylibDebug: "on" else: "off")&" --eval:" & quoteShell(scode) )
+        res = gorgeEx(nimExeQuotedPath & ' ' & subcmd &
+          " --os:" & hostOS &
+          " --cpu:" & hostCPU &
+          " --hints:"&(when pylibDebug: "on" else: "off") &
+          " --eval:" & quoteShell(scode)
+        )
         resCodeS = doWithExecRes res
       when pylibDebug:
         static:echo scode
